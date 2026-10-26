@@ -9,4 +9,6 @@ import '@phosphor-icons/web/fill';
 import './styles.css';
 import App from './App.jsx';
 
+document.documentElement.dataset.build = __COMMIT__;
+
 createRoot(document.getElementById('root')).render(<App />);

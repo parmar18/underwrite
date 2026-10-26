@@ -145,7 +145,7 @@ export default async function handler(req, res) {
     const url = new URL(req.url, 'http://localhost');
     // On Vercel, /api/* is rewritten to /api/index?route=*; restore the original path.
     if (url.searchParams.has('route')) { url.pathname = `/api/${url.searchParams.get('route')}`; url.searchParams.delete('route'); }
-    if (req.method === 'GET' && url.pathname === '/api/health') return json(res, { live, model: MODEL });
+    if (req.method === 'GET' && url.pathname === '/api/health') return json(res, { live, model: MODEL, commit: (process.env.VERCEL_GIT_COMMIT_SHA || 'local').slice(0, 7) });
     if (req.method === 'GET' && url.pathname.startsWith('/api/dataroom')) return dataroom(url, res);
     if (!live && url.pathname.startsWith('/api/')) return json(res, { error: 'No ANTHROPIC_API_KEY configured' }, 503);
     if (req.method === 'POST' && url.pathname === '/api/memo') {
