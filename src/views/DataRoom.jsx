@@ -47,8 +47,7 @@ export default function DataRoom({ ctx, initial = {} }) {
   return (
     <>
       <div className="eyebrow">Data room</div>
-      <h1>Real documents, parsed</h1>
-      <p className="lede">Public SEC filings run through the pipeline: parsed by page, split along the document’s own structure, indexed, and checked for the terms that matter.</p>
+      <h1 style={{ marginBottom: 24 }}>Documents</h1>
 
       <div className="pack-tabs">
         {packs.map((p) => (
