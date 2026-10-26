@@ -10,7 +10,7 @@ const api = (pack, what = '', params = {}) => {
 const norm = (s) => s.replace(/[“”]/g, '"').replace(/’/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
 const TYPE_LABEL = { credit_agreement: 'Credit agreement', annual_report: 'Annual report', qoe: 'QoE', cim: 'CIM', other: 'Other' };
 
-export default function DataRoom({ ctx }) {
+export default function DataRoom({ ctx, initial = {} }) {
   const [packs, setPacks] = useState(null);
   const [pack, setPack] = useState(null);
   const [data, setData] = useState(null);
@@ -19,8 +19,12 @@ export default function DataRoom({ ctx }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    getJSON('/api/dataroom').then((p) => { setPacks(p); if (p[0]) setPack(p[0].pack); }).catch((e) => setError(e.message));
-  }, []);
+    getJSON('/api/dataroom').then((p) => {
+      setPacks(p);
+      const start = p.find((x) => x.pack === initial.pack) || p[0];
+      if (start) setPack(start.pack);
+    }).catch((e) => setError(e.message));
+  }, [initial.pack]);
   useEffect(() => {
     if (!pack) return;
     setData(null);
@@ -29,6 +33,8 @@ export default function DataRoom({ ctx }) {
       setData(d);
       const hasFields = d.fields.some((f) => f.rules.length);
       setTab(hasFields ? 'terms' : 'explore');
+      // Deep link from a deal's citation: open that page straight away.
+      if (pack === initial.pack && initial.doc && initial.page) setView({ mode: 'page', doc: initial.doc, page: initial.page });
     }).catch((e) => setError(e.message));
   }, [pack]);
 
@@ -148,7 +154,6 @@ function KeyTerms({ data, onOpen }) {
             ))}
           </tbody>
         </table>
-        <div className="foot sub">Click a row to see the exact sentence on its page. “Quote verified” means code found the quoted text on that page, not just that a value was returned.</div>
       </div>
     );
   });
@@ -215,7 +220,7 @@ function Explorer({ pack, data, onChunk }) {
   );
 }
 
-// ---------- Search (always) and Ask Claude (with an API key) ----------
+// ---------- Search, plus Ask (Claude with search tools) when live ----------
 function SearchAsk({ ctx, pack, onChunk, onCite }) {
   const [q, setQ] = useState('');
   const [results, setResults] = useState(null);
@@ -253,19 +258,20 @@ function SearchAsk({ ctx, pack, onChunk, onCite }) {
         <Icon n="magnifying-glass" />
         <input id="room-q" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search the documents, e.g. change of control" autoComplete="off" />
         <button className="btn ghost sm" type="submit">Search</button>
-        <button className="btn sm" type="button" disabled={!ctx.api.live || busy || !q.trim()} onClick={ask} title={ctx.api.live ? 'Claude searches the documents with tools' : 'Set ANTHROPIC_API_KEY to ask Claude'}>
-          <Icon n="sparkle" fill /> Ask
-        </button>
+        {ctx.api.live && (
+          <button className="btn sm" type="button" disabled={busy || !q.trim()} onClick={ask}>
+            <Icon n="sparkle" fill /> Ask
+          </button>
+        )}
       </form>
       {!results && !answer && (
         <div className="chips-row">
           {examples.map((x) => <button key={x} className="chip" onClick={() => run(x)}>{x}</button>)}
         </div>
       )}
-      {!ctx.api.live && <p className="sub small">Search runs locally. “Ask” uses Claude with search tools when an API key is set.</p>}
       {answer && (
         <div className="card answer">
-          <div className="sub small"><Icon n="sparkle" fill /> Claude, using the data room tools</div>
+          
           {answer.calls.map((c, i) => <ToolCall key={i} c={c} />)}
           {answer.text ? <Markdown text={answer.text} onCite={onCite} streaming={busy} /> : busy && <span className="sub">Searching…</span>}
         </div>
@@ -336,7 +342,7 @@ function Inspector({ pack, data, view, setView }) {
           <pre className="chunk-text">{chunk.text}</pre>
           {chunk.definitions?.length > 0 && (
             <>
-              <div className="sub small" style={{ marginTop: 6 }}>Defined terms this chunk depends on (attached at retrieval):</div>
+              <div className="sub small" style={{ marginTop: 6 }}>Defined terms used here:</div>
               <div className="chips-row">
                 {chunk.definitions.map((d) => <button key={d.term} className={`chip small ${def?.term === d.term ? 'on' : ''}`} onClick={() => setDef(def?.term === d.term ? null : d)}>{d.term}</button>)}
               </div>

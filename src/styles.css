@@ -277,3 +277,9 @@ h3 { font-size: 15px; font-weight: 600; }
   body { background: #fff; }
   .card { border: 0; }
 }
+
+/* "From SEC filings" marker on real deals */
+.real-tag { margin-left: 10px; border: 0; vertical-align: 2px; background: var(--emerald-soft); color: #046c4e; }
+button.real-tag:hover { background: var(--dark-green); color: var(--yellow); }
+.cite { white-space: nowrap; }
+.table td.r .cite { margin-left: 4px; }

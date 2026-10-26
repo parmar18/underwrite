@@ -18,7 +18,9 @@ It works offline. To have Claude write the IC memo and answer chat questions liv
 3. **Due Diligence.** "The AI read the documents and flagged 3 issues." Click a page reference to show the source quote.
 4. **IC Memo.** Click **Generate memo** and it writes itself, with every claim linked to its source.
 5. **Deal chat** (right panel). Ask "What if EBITDA drops 20% and rates rise 200bps?" It shows the tool it called and the raw result, then answers. The numbers come from the tool, not the AI.
-6. **How it works.** Four steps. The AI drafts, people decide, and the math is done in code.
+6. **InnovAge** (the real deal). Its Securities tab comes from the actual credit agreement: $75M term loan, L+175, 4.75x covenant. Click any page reference to open that page in the **Data Room**.
+
+The system explanation (what's built, architecture, data model, tradeoffs, next steps) is a separate document, not part of the app.
 
 ## Code
 
@@ -28,7 +30,7 @@ src/credit.js     credit math (leverage, coverage, yield)
 src/memo.js       offline memo writer
 src/tools.js      chat tools: deal terms, credit stats (with stress), findings, document search, pipeline compare
 src/agent.js      offline tool router (keywords → tools); live mode lets Claude pick the tools
-src/views/        Deals, Deal (3 tabs), How it works
+src/views/        Deals, Deal (3 tabs + chat), Data Room
 server/index.js   streams the memo; runs the Claude tool-calling loop for chat
 ```
 

@@ -14,14 +14,16 @@ export function analyze(deal, { haircut = 0, sofrShock = 0, basis = 'qoe' } = {}
     leverage,
     sponsorLeverage: deal.size / deal.sponsorEbitda,
     coverage: ebitda / interest,
-    ltv: deal.size / deal.ev,
+    ltv: deal.ev ? deal.size / deal.ev : null, // null when enterprise value isn't known
     cushion: 1 - deal.size / deal.covenant / ebitda, // EBITDA drop before covenant breach
     breach: leverage > deal.covenant,
-    yield: rate + (100 - deal.oid) / 3,
+    yield: rate + (deal.oid ? (100 - deal.oid) / 3 : 0), // OID amortized over a 3-year life
   };
 }
 
 export const fmt = {
-  x: (v) => `${v.toFixed(1)}x`,
-  pct: (v) => `${Math.round(v * 100)}%`,
+  x: (v) => (v == null ? '—' : `${v.toFixed(1)}x`),
+  pct: (v) => (v == null ? '—' : `${Math.round(v * 100)}%`),
+  // "S+575", or "L+175" for older LIBOR-based deals
+  price: (d) => `${d.base || 'S'}+${d.spread}`,
 };

@@ -1,6 +1,6 @@
 // Deal lookup tools. Shared by the server (Claude calls them) and the browser (offline mode calls them).
 // Every tool returns plain JSON. Numbers come from the credit engine, never from the model.
-import { DEALS, DOCS, SOFR, checklistFor } from './data.js';
+import { DEALS, SOFR, checklistFor, docsFor } from './data.js';
 import { analyze } from './credit.js';
 
 const STOPWORDS = new Set(['tell', 'give', 'show', 'explain', 'summarize', 'what', 'does', 'the', 'say', 'says', 'about', 'and', 'for', 'with', 'how', 'this', 'that', 'are', 'there', 'any', 'our', 'deal', 'credit', 'agreement', 'document', 'documents']);
@@ -90,7 +90,8 @@ const RUN = {
     const d = findDeal(deal_id);
     return {
       company: d.name, sponsor: d.sponsor, stage: d.stage, sector: d.sector,
-      loan_size_m: d.size, our_hold_m: d.hold, spread_bps: d.spread, sofr_pct: SOFR, oid: d.oid, tenor_years: d.tenor,
+      loan_size_m: d.size, our_hold_m: d.hold, base_rate: d.base === 'L' ? 'LIBOR' : 'SOFR', spread_bps: d.spread, sofr_pct: SOFR, oid: d.oid, tenor_years: d.tenor,
+      maturity: d.maturity, call_protection: d.callProtection, amortization: d.amortization, floor_pct: d.floor,
       covenant_max_leverage: d.covenant, est_yield_pct: r2(analyze(d).yield),
       tranches: d.tranches.map((t) => ({ name: t.name, size_m: t.size, type: t.type })),
     };
@@ -99,9 +100,9 @@ const RUN = {
     const d = findDeal(deal_id);
     const a = analyze(d, { basis: ebitda_basis, haircut: ebitda_haircut_pct, sofrShock: sofr_shock_bps });
     return {
-      scenario: { ebitda_basis, ebitda_haircut_pct, sofr_shock_bps },
+      scenario: { ebitda_basis, ebitda_haircut_pct, sofr_shock_bps }, ebitda_label: d.ebitdaLabel || (ebitda_basis === 'sponsor' ? 'sponsor EBITDA' : 'QoE EBITDA'),
       ebitda_m: r1(a.ebitda), debt_m: d.size, all_in_rate_pct: r2(a.rate), annual_interest_m: r1(a.interest),
-      leverage_x: r2(a.leverage), interest_coverage_x: r2(a.coverage), ltv_pct: Math.round(a.ltv * 100),
+      leverage_x: r2(a.leverage), interest_coverage_x: r2(a.coverage), ltv_pct: a.ltv == null ? null : Math.round(a.ltv * 100),
       covenant_max_leverage: d.covenant, covenant_cushion_pct: Math.round(a.cushion * 100), breaches_covenant: a.breach,
     };
   },
@@ -109,7 +110,7 @@ const RUN = {
     findDeal(deal_id);
     return checklistFor(deal_id)
       .filter((c) => status === 'all' || c.status === status)
-      .map((c) => ({ item: c.item, status: c.status, note: c.note, citation: cite(c.cite), source: DOCS[c.cite.doc] }));
+      .map((c) => ({ item: c.item, status: c.status, note: c.note, citation: cite(c.cite), source: docsFor(deal_id)[c.cite.doc] }));
   },
   search_documents({ deal_id, query }) {
     findDeal(deal_id);
@@ -127,12 +128,12 @@ const RUN = {
     return scored
       .filter((x) => x.score >= Math.max(1, best - 1))
       .slice(0, 3)
-      .map(({ p }) => ({ citation: cite(p), document: DOCS[p.doc], text: p.text }));
+      .map(({ p }) => ({ citation: cite(p), document: docsFor(deal_id)[p.doc], text: p.text }));
   },
   compare_pipeline() {
     return DEALS.map((d) => {
       const a = analyze(d);
-      return { deal_id: d.id, company: d.name, stage: d.stage, spread_bps: d.spread, leverage_x: r2(a.leverage), est_yield_pct: r2(a.yield), ltv_pct: Math.round(a.ltv * 100) };
+      return { deal_id: d.id, company: d.name, stage: d.stage, spread_bps: d.spread, leverage_x: r2(a.leverage), est_yield_pct: r2(a.yield), ltv_pct: a.ltv == null ? null : Math.round(a.ltv * 100) };
     });
   },
 };

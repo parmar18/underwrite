@@ -38,13 +38,13 @@ function write(call, result, dealId) {
     case 'get_credit_stats': {
       const r = result;
       const sc = r.scenario;
-      const label = [sc.ebitda_basis === 'sponsor' ? 'sponsor EBITDA' : 'QoE EBITDA', sc.ebitda_haircut_pct ? `EBITDA down ${sc.ebitda_haircut_pct}%` : '', sc.sofr_shock_bps ? `SOFR ${sc.sofr_shock_bps > 0 ? '+' : ''}${sc.sofr_shock_bps}bps` : '']
+      const label = [r.ebitda_label, sc.ebitda_haircut_pct ? `EBITDA down ${sc.ebitda_haircut_pct}%` : '', sc.sofr_shock_bps ? `SOFR ${sc.sofr_shock_bps > 0 ? '+' : ''}${sc.sofr_shock_bps}bps` : '']
         .filter(Boolean).join(', ');
       return `On ${label}: leverage is **${r.leverage_x}x**, which ${yes(r.breaches_covenant)} ${r.covenant_max_leverage}x covenant. Interest coverage is **${r.interest_coverage_x}x** and EBITDA could fall another **${r.covenant_cushion_pct}%** before a breach.`;
     }
     case 'get_deal_terms': {
       const r = result;
-      return `${r.company} is a **$${r.loan_size_m}M** loan (${r.tranches.map((t) => `${t.name} $${t.size_m}M`).join(', ')}). We hold **$${r.our_hold_m}M** at **S+${r.spread_bps}**, ${r.oid} OID, ${r.tenor_years} years, for an estimated **${r.est_yield_pct}%** yield.`;
+      return `${r.company} is a **$${r.loan_size_m}M** loan (${r.tranches.map((t) => `${t.name} $${t.size_m}M`).join(', ')}). We hold **$${r.our_hold_m}M** at **${r.base_rate === 'LIBOR' ? 'L' : 'S'}+${r.spread_bps}**${r.oid ? `, ${r.oid} OID` : ''}, maturing ${r.maturity}, for an estimated **${r.est_yield_pct}%** yield.`;
     }
     case 'get_diligence_findings':
       if (!result.length) return 'No matching diligence items.';

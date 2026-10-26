@@ -70,7 +70,6 @@ export default function Chat({ ctx, deal, onCite }) {
       <div className="chat-head">
         <div>
           <b>Ask about {deal.name}</b>
-          <div className="sub">Answers come from deal tools, with sources</div>
         </div>
         {log.length > 0 && <button className="btn ghost sm" onClick={() => setLog(() => [])} title="Clear chat"><Icon n="trash" /></button>}
       </div>

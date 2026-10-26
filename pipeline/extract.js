@@ -5,7 +5,8 @@ import { search } from './search.js';
 
 const norm = (s) => s.replace(/[“”]/g, '"').replace(/[’]/g, "'").replace(/\s+/g, ' ').trim().toLowerCase();
 const sentenceAround = (text, idx, max = 320) => {
-  const start = Math.max(0, text.lastIndexOf('. ', idx) + 2, idx - max / 2);
+  const dot = text.lastIndexOf('. ', idx);
+  const start = Math.max(dot === -1 ? 0 : dot + 2, idx - max / 2);
   const endDot = text.indexOf('. ', idx);
   const end = Math.min(text.length, endDot === -1 ? idx + max / 2 : endDot + 1, start + max);
   return text.slice(start, end).trim();
