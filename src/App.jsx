@@ -42,7 +42,7 @@ export default function App() {
     <div className="app">
       <header className="nav">
         <button className="brand" onClick={() => go('/')}>
-          <span className="brand-mark">S</span> Underwrite
+          <span className="brand-mark"><img src="/mark.png" alt="" /></span> Underwrite
         </button>
         <button className={`nav-link ${top !== 'dataroom' ? 'on' : ''}`} onClick={() => go('/')}>Deals</button>
         <button className={`nav-link ${top === 'dataroom' ? 'on' : ''}`} onClick={() => go('/dataroom')}>Data Room</button>
