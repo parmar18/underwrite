@@ -1,0 +1,40 @@
+[
+  {
+    "id": "D1",
+    "file": "10-k-fy2021.htm",
+    "title": "Form 10-K, fiscal year ended June 30, 2021",
+    "type": "annual_report",
+    "url": "https://www.sec.gov/Archives/edgar/data/1834376/000155837021012679/tmb-20210630x10k.htm",
+    "pages": 125,
+    "blocks": 1751,
+    "tables": 52,
+    "chars": 572385,
+    "chunks": 513,
+    "definitions": 0,
+    "toc_pages": 1,
+    "running_headers": [
+      "Table of Contents"
+    ],
+    "sections": 21,
+    "avg_tokens": 287,
+    "max_tokens": 1622
+  },
+  {
+    "id": "D2",
+    "file": "credit-agreement-2021.htm",
+    "title": "Credit Agreement (March 2021)",
+    "type": "credit_agreement",
+    "url": "https://www.sec.gov/Archives/edgar/data/1834376/000110465921035601/tm2037889d20_ex10-1.htm",
+    "pages": 180,
+    "blocks": 1159,
+    "tables": 7,
+    "chars": 593654,
+    "chunks": 728,
+    "definitions": 351,
+    "toc_pages": 5,
+    "running_headers": [],
+    "sections": 106,
+    "avg_tokens": 204,
+    "max_tokens": 798
+  }
+]

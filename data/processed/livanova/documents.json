@@ -1,0 +1,20 @@
+[
+  {
+    "id": "D1",
+    "file": "first-lien-credit-agreement-2021.htm",
+    "title": "First Lien Credit Agreement (2021)",
+    "type": "credit_agreement",
+    "url": "https://www.sec.gov/Archives/edgar/data/1639691/000163969121000096/ex10_1livanova-firstliencr.htm",
+    "pages": 164,
+    "blocks": 1337,
+    "tables": 7,
+    "chars": 726517,
+    "chunks": 829,
+    "definitions": 376,
+    "toc_pages": 4,
+    "running_headers": [],
+    "sections": 117,
+    "avg_tokens": 220,
+    "max_tokens": 945
+  }
+]

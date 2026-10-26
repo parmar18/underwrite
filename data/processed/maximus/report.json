@@ -1,0 +1,21 @@
+{
+  "pack": "maximus",
+  "name": "Maximus, Inc.",
+  "about": "Government services company. Annual report as a PDF, to exercise the PDF path.",
+  "processed_at": "2026-10-26T14:52:06.951Z",
+  "llm": false,
+  "totals": {
+    "documents": 1,
+    "pages": 84,
+    "chunks": 225,
+    "definitions": 0,
+    "tables": 0,
+    "fields_verified": 0,
+    "fields_total": 0
+  },
+  "timings_ms": {
+    "parse": 714,
+    "chunk": 1,
+    "extract": 14
+  }
+}

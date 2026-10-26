@@ -1,0 +1,50 @@
+{
+  "_note": "Public SEC EDGAR filings used as stand-ins for a private credit data room. Download in a browser into data/raw/<pack>/, or run `npm run fetch` (needs SEC_USER_AGENT in .env).",
+  "packs": [
+    {
+      "id": "innovage",
+      "name": "InnovAge Holding Corp.",
+      "about": "Sponsor-backed PACE healthcare provider (Apax / Welsh Carson). Credit agreement plus the first 10-K after it.",
+      "docs": [
+        {
+          "file": "credit-agreement-2021.htm",
+          "type": "credit_agreement",
+          "title": "Credit Agreement (March 2021)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1834376/000110465921035601/tm2037889d20_ex10-1.htm"
+        },
+        {
+          "file": "10-k-fy2021.htm",
+          "type": "annual_report",
+          "title": "Form 10-K, fiscal year ended June 30, 2021",
+          "url": "https://www.sec.gov/Archives/edgar/data/1834376/000155837021012679/tmb-20210630x10k.htm"
+        }
+      ]
+    },
+    {
+      "id": "livanova",
+      "name": "LivaNova PLC",
+      "about": "Medical device company. A large first lien credit agreement with incremental and Available Amount baskets.",
+      "docs": [
+        {
+          "file": "first-lien-credit-agreement-2021.htm",
+          "type": "credit_agreement",
+          "title": "First Lien Credit Agreement (2021)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1639691/000163969121000096/ex10_1livanova-firstliencr.htm"
+        }
+      ]
+    },
+    {
+      "id": "maximus",
+      "name": "Maximus, Inc.",
+      "about": "Government services company. Annual report as a PDF, to exercise the PDF path.",
+      "docs": [
+        {
+          "file": "annual-report-fy2023.pdf",
+          "type": "annual_report",
+          "title": "Annual Report FY2023 (PDF)",
+          "url": "https://www.sec.gov/Archives/edgar/data/1032220/000103222024000011/maximusinc_10kx2024xv1.pdf"
+        }
+      ]
+    }
+  ]
+}

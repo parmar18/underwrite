@@ -1,0 +1,20 @@
+[
+  {
+    "id": "D1",
+    "file": "annual-report-fy2023.pdf",
+    "title": "Annual Report FY2023 (PDF)",
+    "type": "annual_report",
+    "url": "https://www.sec.gov/Archives/edgar/data/1032220/000103222024000011/maximusinc_10kx2024xv1.pdf",
+    "pages": 84,
+    "blocks": 857,
+    "tables": 0,
+    "chars": 270548,
+    "chunks": 225,
+    "definitions": 0,
+    "toc_pages": 0,
+    "running_headers": [],
+    "sections": 11,
+    "avg_tokens": 323,
+    "max_tokens": 669
+  }
+]
