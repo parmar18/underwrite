@@ -9,7 +9,16 @@ import DataRoom from './views/DataRoom.jsx';
 function useRoute() {
   const [hash, setHash] = useState(window.location.hash.slice(1) || '/');
   useEffect(() => {
-    const on = () => { setHash(window.location.hash.slice(1) || '/'); window.scrollTo(0, 0); };
+    // Scroll to the top only when the page itself changes (another deal, Data Room),
+    // not when switching tabs inside a deal — that jump made tab clicks feel slow.
+    const pageOf = (h) => h.split('/').filter(Boolean).slice(0, 2).join('/');
+    let last = pageOf(window.location.hash.slice(1));
+    const on = () => {
+      const h = window.location.hash.slice(1) || '/';
+      setHash(h);
+      if (pageOf(h) !== last) window.scrollTo(0, 0);
+      last = pageOf(h);
+    };
     window.addEventListener('hashchange', on);
     return () => window.removeEventListener('hashchange', on);
   }, []);
