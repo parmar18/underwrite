@@ -18,6 +18,8 @@ export const DEALS = [
     spread: 175,
     spreadNote: 'Grid: L+200 above 2.50x secured net leverage, L+175 at or below',
     base: 'L',
+    baseRate: 0.11, // % — assumed 1M LIBOR at closing (Mar 2021); other deals use SOFR
+    baseRateNote: '1M LIBOR ~0.11% at closing',
     floor: null,
     oid: null,
     tenor: 5,
@@ -28,6 +30,7 @@ export const DEALS = [
     sponsorEbitda: 85.3,
     ebitda: 85.3,
     ebitdaLabel: 'Company Adj. EBITDA',
+    leverageLabel: 'Gross leverage',
     ev: null,
     covenant: 4.75,
     covenantName: 'Max secured net leverage',
@@ -156,9 +159,9 @@ export const CHECKLIST = {
   innovage: [
     {
       item: 'EBITDA add-backs', status: 'flag',
-      note: 'Adjusted EBITDA of $85.3M adds back $67.6M of M&A and transaction costs and $18.2M of contingent consideration to a net loss of $44.7M.',
+      note: 'Before adjustments, EBITDA was −$5.9M: a $44.7M net loss plus $38.9M of interest, D&A and tax. Adjustments add $91.2M, led by $67.6M of M&A and transaction costs (mostly a one-off $45.4M option cancellation), $18.2M of contingent consideration and $14.5M of financing costs, less a $10.9M consolidation gain.',
       cite: { doc: 'D1', page: 77 },
-      quote: 'Net income (loss) $(44,740) · M&A diligence, transaction and integration 67,606 · Contingent consideration 18,211 · Adjusted EBITDA $85,333 (in thousands, year ended June 30, 2021).',
+      quote: 'Net income (loss) (44,740) · Interest expense, net 16,787 · Depreciation and amortization 12,294 · Provision for income tax 9,771 · M&A diligence, transaction and integration 67,606 · Gain on consolidation of equity investee (10,871) · Financing-related 14,479 · Contingent consideration 18,211 · Adjusted EBITDA 85,333 (in thousands, year ended June 30, 2021).',
     },
     {
       item: 'Loan document terms', status: 'flag',
@@ -174,7 +177,7 @@ export const CHECKLIST = {
     },
     {
       item: 'Financial covenant', status: 'done',
-      note: 'Secured net leverage may not exceed 4.75x, tested quarterly. Closing leverage is about 0.9x, so headroom is large.',
+      note: 'Secured net leverage may not exceed 4.75x, tested quarterly on Consolidated EBITDA as the agreement defines it. With $201.5M of cash against the $75M term loan, InnovAge was net cash at FY2021, so the covenant was far from binding.',
       cite: { doc: 'D2', page: 141 },
       quote: 'The Borrower will not permit the Secured Net Leverage Ratio, calculated on the last day of each fiscal quarter listed below, to be greater than 4.75:1.00',
     },
@@ -219,7 +222,17 @@ export const CHECKLIST = {
   ],
 };
 
-export function checklistFor(dealId) {
+// Status changes the deal team makes in the app: { dealId: { item: status } }. In memory for the demo.
+const edits = {};
+export const setItemStatus = (dealId, item, status) => { (edits[dealId] ||= {})[item] = status; };
+export const editsFor = (dealId) => edits[dealId] || {};
+
+// The checklist with the team's status changes applied. The server passes the browser's edits in.
+export function checklistFor(dealId, changes = editsFor(dealId)) {
+  return baseChecklist(dealId).map((c) => (changes[c.item] && changes[c.item] !== c.status ? { ...c, status: changes[c.item], was: c.status } : c));
+}
+
+function baseChecklist(dealId) {
   if (CHECKLIST[dealId]) return CHECKLIST[dealId];
   const d = DEALS.find((x) => x.id === dealId);
   return [

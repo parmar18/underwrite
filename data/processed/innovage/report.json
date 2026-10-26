@@ -2,7 +2,7 @@
   "pack": "innovage",
   "name": "InnovAge Holding Corp.",
   "about": "Sponsor-backed PACE healthcare provider (Apax / Welsh Carson). Credit agreement plus the first 10-K after it.",
-  "processed_at": "2026-10-26T18:25:37.365Z",
+  "processed_at": "2026-10-26T19:12:43.661Z",
   "llm": false,
   "totals": {
     "documents": 2,
@@ -14,8 +14,8 @@
     "fields_total": 8
   },
   "timings_ms": {
-    "parse": 244,
-    "chunk": 13,
-    "extract": 51
+    "parse": 304,
+    "chunk": 16,
+    "extract": 63
   }
 }

@@ -100,7 +100,7 @@ export function extractRules(chunks, pagesByDoc) {
       note: m ? hit.t.note || null : f.missing || 'Clause found, value needs a human read.',
       status: m ? 'found' : 'needs_review',
       quote, doc_id: c.doc_id, chunk_id: c.id, page: pageOf(c, quote, pagesByDoc), section: c.section, term: c.term,
-      verified: verify(quote, c, pagesByDoc),
+      verified: Boolean(m) && verify(quote, c, pagesByDoc), // only a found value counts as verified
     });
   }
   return out;

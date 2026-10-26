@@ -158,9 +158,9 @@ export default async function handler(req, res) {
       });
     }
     if (req.method === 'POST' && url.pathname === '/api/chat') {
-      const { dealId, messages } = await readJson(req);
+      const { dealId, messages, edits } = await readJson(req);
       const deal = DEALS.find((d) => d.id === dealId);
-      return toolChat(res, { system: DEAL_CHAT_SYSTEM(deal), tools: TOOL_DEFS, run: runTool, messages });
+      return toolChat(res, { system: DEAL_CHAT_SYSTEM(deal), tools: TOOL_DEFS, run: (n, i) => runTool(n, i, { edits }), messages });
     }
     if (req.method === 'POST' && url.pathname === '/api/dataroom-chat') {
       const { pack, messages } = await readJson(req);

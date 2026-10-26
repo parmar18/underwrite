@@ -1,6 +1,6 @@
 # Underwrite: private credit underwriting demo
 
-A simple prototype for a private credit deal team: **Deals → Securities → Due Diligence → IC Memo**. All data in it is fictional.
+A simple prototype for a private credit deal team: **Deals → Securities → Due Diligence → IC Memo**. The sample deals are fictional; InnovAge is a real example built from its public SEC filings.
 
 ## Run it
 
@@ -15,7 +15,7 @@ It works offline. To have Claude write the IC memo and answer chat questions liv
 
 1. **Deals.** "Here's the pipeline." Click **Meridian Health**.
 2. **Securities.** "This is the loan we're being asked to make."
-3. **Due Diligence.** "The AI read the documents and flagged 3 issues." Click a page reference to show the source quote.
+3. **Due Diligence.** "The AI read the documents and flagged 3 issues." Click a page reference to show the source quote. Click **Resolve** on a red flag and the flag count and memo recommendation update.
 4. **IC Memo.** Click **Generate memo** and it writes itself, with every claim linked to its source.
 5. **Deal chat** (right panel). Ask "What if EBITDA drops 20% and rates rise 200bps?" It shows the tool it called and the raw result, then answers. The numbers come from the tool, not the AI.
 6. **InnovAge** (the real deal). Its Securities tab comes from the actual credit agreement: $75M term loan, L+175, 4.75x covenant. Click any page reference to open that page in the **Data Room**.

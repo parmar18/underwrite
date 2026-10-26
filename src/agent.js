@@ -44,7 +44,7 @@ function write(call, result, dealId) {
     }
     case 'get_deal_terms': {
       const r = result;
-      return `${r.company} is a **$${r.loan_size_m}M** loan (${r.tranches.map((t) => `${t.name} $${t.size_m}M`).join(', ')}). We hold **$${r.our_hold_m}M** at **${r.base_rate === 'LIBOR' ? 'L' : 'S'}+${r.spread_bps}**${r.oid ? `, ${r.oid} OID` : ''}, maturing ${r.maturity}, for an estimated **${r.est_yield_pct}%** yield.`;
+      return `${r.company} is a **$${r.loan_size_m}M** loan (${r.tranches.map((t) => `${t.name} $${t.size_m}M`).join(', ')}). We hold **$${r.our_hold_m}M** at **${r.pricing}**${r.oid ? `, ${r.oid} OID` : ''}, maturing ${r.maturity}, for an estimated **${r.est_yield_pct}%** yield.`;
     }
     case 'get_diligence_findings':
       if (!result.length) return 'No matching diligence items.';
@@ -55,7 +55,7 @@ function write(call, result, dealId) {
     case 'compare_pipeline': {
       const rows = [...result].sort((a, b) => b.leverage_x - a.leverage_x);
       return `| Deal | Leverage | Spread | Yield |\n|---|---|---|---|\n${rows
-        .map((d) => `| ${d.deal_id === dealId ? `**${d.company}**` : d.company} | ${d.leverage_x}x | S+${d.spread_bps} | ${d.est_yield_pct}% |`)
+        .map((d) => `| ${d.deal_id === dealId ? `**${d.company}**` : d.company} | ${d.leverage_x}x | ${d.pricing} | ${d.est_yield_pct}% |`)
         .join('\n')}`;
     }
     default:

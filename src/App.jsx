@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DEALS } from './data.js';
+import { DEALS, setItemStatus } from './data.js';
 import { health } from './api.js';
 import { Icon, go } from './ui.jsx';
 import Deals from './views/Deals.jsx';
@@ -29,9 +29,14 @@ export default function App() {
   const [top, id, tab, extra] = useRoute();
   const [api, setApi] = useState({ live: false });
   const [memos, setMemos] = useState({});
+  const [, setEdits] = useState(0); // re-render after a diligence status change
   useEffect(() => { health().then(setApi); }, []);
 
-  const ctx = { api, memos, setMemo: (dealId, m) => setMemos((s) => ({ ...s, [dealId]: { ...s[dealId], ...m } })) };
+  const ctx = {
+    api, memos,
+    setMemo: (dealId, m) => setMemos((s) => ({ ...s, [dealId]: { ...s[dealId], ...m } })),
+    setStatus: (dealId, item, status) => { setItemStatus(dealId, item, status); setEdits((n) => n + 1); },
+  };
   const deal = DEALS.find((d) => d.id === id);
 
   let view = <Deals />;

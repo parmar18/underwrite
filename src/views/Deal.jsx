@@ -31,8 +31,8 @@ export default function Deal({ ctx, deal, tab }) {
       <div className="stats">
         <Stat label="Our hold" value={`$${deal.hold}M`} />
         <Stat label="Pricing" value={fmt.price(deal)} foot={deal.floor != null ? `${deal.floor.toFixed(2)}% floor` : null} />
-        <Stat label="Total leverage" value={fmt.x(a.leverage)} foot={`on ${basis}`} />
-        <Stat label={deal.oid ? 'Yield (3-yr, incl. OID)' : 'Cash yield'} value={`${a.yield.toFixed(1)}%`} />
+        <Stat label={deal.leverageLabel || 'Total leverage'} value={fmt.x(a.leverage)} foot={`on ${basis}`} />
+        <Stat label={deal.oid ? 'Yield (3-yr, incl. OID)' : 'Cash yield'} value={`${a.yield.toFixed(1)}%`} foot={deal.baseRateNote} />
       </div>
 
       <div className="deal-grid">
@@ -47,7 +47,7 @@ export default function Deal({ ctx, deal, tab }) {
           </div>
 
           {tab === 'securities' && <Securities deal={deal} a={a} onCite={setSource} />}
-          {tab === 'diligence' && <Diligence checklist={checklist} onCite={setSource} />}
+          {tab === 'diligence' && <Diligence deal={deal} ctx={ctx} checklist={checklist} onCite={setSource} />}
           {tab === 'memo' && <Memo ctx={ctx} deal={deal} checklist={checklist} onCite={setSource} />}
         </div>
         <Chat ctx={ctx} deal={deal} onCite={setSource} />
@@ -111,7 +111,7 @@ function Securities({ deal, a, onCite }) {
 
       <div className="snap">
         <div className="card snap-card">
-          <h3>Total leverage vs. covenant</h3>
+          <h3>{deal.leverageLabel || 'Total leverage'} vs. covenant</h3>
           <dl className="kv">
             {deal.ebitdaLabel ? (
               <><dt>{deal.ebitdaLabel} (${deal.ebitda}M)</dt><dd>{fmt.x(a.leverage)}</dd></>
@@ -162,13 +162,22 @@ function Securities({ deal, a, onCite }) {
   );
 }
 
-function Diligence({ checklist, onCite }) {
+function Diligence({ deal, ctx, checklist, onCite }) {
   return (
     <div className="card">
       {checklist.map((c) => (
         <div key={c.item} className="check">
-          <div className="check-head"><b>{c.item}</b><Status s={c.status} /></div>
+          <div className="check-head">
+            <b>{c.item}</b>
+            <span className="check-actions">
+              {c.was
+                ? <button className="btn ghost sm" onClick={() => ctx.setStatus(deal.id, c.item, c.was)}>Reopen</button>
+                : c.status !== 'done' && <button className="btn ghost sm" onClick={() => ctx.setStatus(deal.id, c.item, 'done')}><Icon n="check" /> Resolve</button>}
+              <Status s={c.status} />
+            </span>
+          </div>
           <p>{c.note} <Cite c={c.cite} onClick={onCite} /></p>
+          {c.was && <p className="sub small">Resolved by the deal team.</p>}
         </div>
       ))}
     </div>
@@ -181,10 +190,12 @@ function Memo({ ctx, deal, checklist, onCite }) {
   const memo = ctx.memos[deal.id] || {};
   const streaming = memo.status === 'streaming';
   const closed = deal.stage === 'Closed';
+  const statusKey = checklist.map((c) => c.status).join();
+  const stale = memo.basis && memo.basis !== statusKey && !streaming;
 
   const generate = async () => {
     cancels[deal.id]?.();
-    ctx.setMemo(deal.id, { text: '', status: 'streaming', error: null });
+    ctx.setMemo(deal.id, { text: '', status: 'streaming', error: null, basis: statusKey });
     if (ctx.api.live) {
       const ac = new AbortController();
       cancels[deal.id] = () => ac.abort();
@@ -221,6 +232,7 @@ function Memo({ ctx, deal, checklist, onCite }) {
         </div>
       </div>
       <h2 className="paper-title">{deal.name}</h2>
+      {stale && <p className="tag no-print">Diligence changed since this draft. Redo to update it.</p>}
       <Markdown text={memo.text || ''} onCite={onCite} streaming={streaming} />
       {memo.error && <p className="tag bad">{memo.error}</p>}
     </div>

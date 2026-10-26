@@ -1,7 +1,7 @@
 // Deal lookup tools. Shared by the server (Claude calls them) and the browser (offline mode calls them).
 // Every tool returns plain JSON. Numbers come from the credit engine, never from the model.
 import { DEALS, SOFR, checklistFor, docsFor } from './data.js';
-import { analyze } from './credit.js';
+import { analyze, fmt } from './credit.js';
 
 const STOPWORDS = new Set(['tell', 'give', 'show', 'explain', 'summarize', 'what', 'does', 'the', 'say', 'says', 'about', 'and', 'for', 'with', 'how', 'this', 'that', 'are', 'there', 'any', 'our', 'deal', 'credit', 'agreement', 'document', 'documents']);
 
@@ -90,7 +90,7 @@ const RUN = {
     const d = findDeal(deal_id);
     return {
       company: d.name, sponsor: d.sponsor, stage: d.stage, sector: d.sector,
-      loan_size_m: d.size, our_hold_m: d.hold, base_rate: d.base === 'L' ? 'LIBOR' : 'SOFR', spread_bps: d.spread, sofr_pct: SOFR, oid: d.oid, tenor_years: d.tenor,
+      loan_size_m: d.size, our_hold_m: d.hold, pricing: fmt.price(d), base_rate: d.base === 'L' ? 'LIBOR' : 'SOFR', base_rate_pct: d.baseRate ?? SOFR, spread_bps: d.spread, oid: d.oid, tenor_years: d.tenor,
       maturity: d.maturity, call_protection: d.callProtection, amortization: d.amortization, floor_pct: d.floor,
       covenant_max_leverage: d.covenant, est_yield_pct: r2(analyze(d).yield),
       tranches: d.tranches.map((t) => ({ name: t.name, size_m: t.size, type: t.type })),
@@ -102,21 +102,21 @@ const RUN = {
     return {
       scenario: { ebitda_basis, ebitda_haircut_pct, sofr_shock_bps }, ebitda_label: d.ebitdaLabel || (ebitda_basis === 'sponsor' ? 'sponsor EBITDA' : 'QoE EBITDA'),
       ebitda_m: r1(a.ebitda), debt_m: d.size, all_in_rate_pct: r2(a.rate), annual_interest_m: r1(a.interest),
-      leverage_x: r2(a.leverage), interest_coverage_x: r2(a.coverage), ltv_pct: a.ltv == null ? null : Math.round(a.ltv * 100),
-      covenant_max_leverage: d.covenant, covenant_cushion_pct: Math.round(a.cushion * 100), breaches_covenant: a.breach,
+      leverage_label: d.leverageLabel || 'Total leverage', leverage_x: r2(a.leverage), interest_coverage_x: r2(a.coverage), ltv_pct: a.ltv == null ? null : Math.round(a.ltv * 100),
+      covenant: d.covenantName || 'Max total leverage', covenant_max_leverage: d.covenant, covenant_cushion_pct: Math.round(a.cushion * 100), breaches_covenant: a.breach,
     };
   },
-  get_diligence_findings({ deal_id, status = 'all' }) {
+  get_diligence_findings({ deal_id, status = 'all' }, { edits } = {}) {
     findDeal(deal_id);
-    return checklistFor(deal_id)
+    return checklistFor(deal_id, edits)
       .filter((c) => status === 'all' || c.status === status)
       .map((c) => ({ item: c.item, status: c.status, note: c.note, citation: cite(c.cite), source: docsFor(deal_id)[c.cite.doc] }));
   },
-  search_documents({ deal_id, query }) {
+  search_documents({ deal_id, query }, { edits } = {}) {
     findDeal(deal_id);
     const words = query.toLowerCase().split(/\W+/).filter((w) => w.length > 2 && !STOPWORDS.has(w));
     const pool = [
-      ...checklistFor(deal_id).map((c) => ({ doc: c.cite.doc, page: c.cite.page, text: c.quote })),
+      ...checklistFor(deal_id, edits).map((c) => ({ doc: c.cite.doc, page: c.cite.page, text: c.quote })),
       ...(PASSAGES[deal_id] || []),
     ];
     const scored = pool
@@ -133,14 +133,15 @@ const RUN = {
   compare_pipeline() {
     return DEALS.map((d) => {
       const a = analyze(d);
-      return { deal_id: d.id, company: d.name, stage: d.stage, spread_bps: d.spread, leverage_x: r2(a.leverage), est_yield_pct: r2(a.yield), ltv_pct: a.ltv == null ? null : Math.round(a.ltv * 100) };
+      return { deal_id: d.id, company: d.name, stage: d.stage, pricing: fmt.price(d), spread_bps: d.spread, leverage_x: r2(a.leverage), est_yield_pct: r2(a.yield), ltv_pct: a.ltv == null ? null : Math.round(a.ltv * 100) };
     });
   },
 };
 
-export function runTool(name, input) {
+// `ctx.edits` carries the team's diligence status changes (the server gets them from the browser).
+export function runTool(name, input, ctx) {
   if (!RUN[name]) throw new Error(`Unknown tool ${name}`);
-  return RUN[name](input || {});
+  return RUN[name](input || {}, ctx);
 }
 
 // One-line label for showing a call in the chat, e.g. get_credit_stats(haircut 20%).

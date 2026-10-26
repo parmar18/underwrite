@@ -4,7 +4,8 @@ import { SOFR } from './data.js';
 // Optional stress: EBITDA haircut (%), SOFR shock (bps), and which EBITDA to use.
 export function analyze(deal, { haircut = 0, sofrShock = 0, basis = 'qoe' } = {}) {
   const ebitda = (basis === 'sponsor' ? deal.sponsorEbitda : deal.ebitda) * (1 - haircut / 100);
-  const rate = SOFR + sofrShock / 100 + deal.spread / 100;
+  const base = deal.baseRate ?? SOFR; // older LIBOR deals carry their own base rate
+  const rate = base + sofrShock / 100 + deal.spread / 100;
   const interest = (deal.size * rate) / 100;
   const leverage = deal.size / ebitda;
   return {
@@ -15,7 +16,7 @@ export function analyze(deal, { haircut = 0, sofrShock = 0, basis = 'qoe' } = {}
     sponsorLeverage: deal.size / deal.sponsorEbitda,
     coverage: ebitda / interest,
     ltv: deal.ev ? deal.size / deal.ev : null, // null when enterprise value isn't known
-    cushion: 1 - deal.size / deal.covenant / ebitda, // EBITDA drop before covenant breach
+    cushion: 1 - leverage / deal.covenant, // EBITDA drop before covenant breach
     breach: leverage > deal.covenant,
     yield: rate + (deal.oid ? (100 - deal.oid) / 3 : 0), // OID amortized over a 3-year life
   };

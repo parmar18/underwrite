@@ -2,7 +2,7 @@
   "pack": "livanova",
   "name": "LivaNova PLC",
   "about": "Medical device company. A large first lien credit agreement with incremental and Available Amount baskets.",
-  "processed_at": "2026-10-26T18:25:37.504Z",
+  "processed_at": "2026-10-26T19:12:43.824Z",
   "llm": false,
   "totals": {
     "documents": 1,
@@ -10,12 +10,12 @@
     "chunks": 829,
     "definitions": 376,
     "tables": 3,
-    "fields_verified": 8,
+    "fields_verified": 5,
     "fields_total": 8
   },
   "timings_ms": {
-    "parse": 78,
-    "chunk": 13,
-    "extract": 37
+    "parse": 98,
+    "chunk": 14,
+    "extract": 42
   }
 }

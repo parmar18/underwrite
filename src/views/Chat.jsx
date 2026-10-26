@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { editsFor } from '../data.js';
 import { describeCall } from '../tools.js';
 import { offlineAnswer } from '../agent.js';
 import { streamEvents } from '../api.js';
@@ -45,7 +46,7 @@ export default function Chat({ ctx, deal, onCite }) {
     setBusy(true);
     try {
       if (ctx.api.live) {
-        await streamEvents('/api/chat', { dealId: deal.id, messages: [...history, { role: 'user', content: question }] }, (e) => {
+        await streamEvents('/api/chat', { dealId: deal.id, edits: editsFor(deal.id), messages: [...history, { role: 'user', content: question }] }, (e) => {
           if (e.tool) updateLast((m) => ({ calls: [...m.calls, { ...e.tool, done: false }] }));
           if (e.tool_result) updateLast((m) => ({ calls: m.calls.map((c) => (c.id === e.tool_result.id ? { ...c, result: e.tool_result.result, done: true } : c)) }));
           if (e.text) updateLast((m) => ({ text: m.text + e.text }));
